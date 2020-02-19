@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>View Detail</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+    </div>
+    <script>
+         $(function(){
+            let url = window.location.href
+            let id = url.split('?')
+            console.log();
+            let ID = id[1].substr(3, id[1].length-3)
+            getOneArticle(ID)
+        })
+        function getOneArticle(id){
+            $.ajax({
+                url: `http://110.74.194.124:15011/v1/api/articles/${id}`,
+                method: 'get',
+                success: function(res){
+                    appendToJumbotron(res.DATA)
+                }, 
+                error: function(er){
+                    console.log(er)
+                }
+            })
+        }  
+        function appendToJumbotron(article){
+            $('.container').html(`
+            <div class="jumbotron">
+                    <h2 class="display-4">${article.TITLE}</h2>
+                    <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+                    <hr class="my-4">
+                    <p>${article.DESCRIPTION}</p>
+                    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+            </div>
+            `)
+        }  
+    </script>
+    
+</body>
+
+</html>

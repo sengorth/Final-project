@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.10.1/css/mdb.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-6">
+        <!-- Button trigger modal -->
+        <button type="button" id="callModal" class="btn btn-primary md-4 mt-4" data-toggle="modal">
+          បញ្ចូលទិន្នន័យថ្មី
+        </button>
+      </div>
+      <div class="col-6">
+        <div class="active-purple-3 active-purple-4 md-4 mt-4">
+          <input class="form-control" type="text" placeholder="Search" aria-label="Search" id="search">
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Title</th>
+        <th scope="col">Description</th>
+        <th scope="col">Image</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+  <div class="col-md-12 paginator js-paginator">
+
+  </div>
+  <!-- Modal -->
+  <div class="modal fade" id="modalArticle" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Add Record</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Default form login -->
+          <div class="text-center border border-light p-5">
+
+            <p class="h4 mb-4">បញ្ចូលទិន្នន័យ</p>
+            <input type="hidden" id="aID">
+            <input type="text" id="title" class="form-control mb-4" placeholder="TITLE">
+            <input type="text" id="desc" class="form-control mb-4" placeholder="DESCRIPTION">
+            <input type="text" id="image" class="form-control mb-4" placeholder="IMAGE URL">
+
+          </div>
+          <!-- Default form login -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+    </script>
+
+  <script src="js/paginator.min.js"></script>
+
+  <script>
+
+    $(document).ready(function () {
+      let totalPage = 1;
+      $.ajax({
+        url: `http://110.74.194.124:15011/v1/api/articles?page=1&limit=15`,
+        method: 'GET',
+        success: function (res) {
+          // first load 
+          content = ''
+          for (a of res.DATA) {
+            content += `
+          <tr>
+        <th>${a.ID}</th>
+        <td>${a.TITLE}</td>
+        <td>${a.DESCRIPTION}</td>
+        <td><img src=${a.IMAGE}></td>
+        <td> 
+        <button type="button" class="btn btn-danger"  id="aID" data-id=${a.ID} onclick=DeleteArcticle(this)>Delete</button>
+        <button type="button" class="btn btn-success" onclick="GoToDetail(${a.ID})">View</button>
+        <button type="button" class="btn btn-success" onclick="showModal('${a.TITLE}','${a.DESCRIPTION}','${a.IMAGE}','${a.ID}')">Edit</button>
+        </td>
+      </tr>
+          `
+          }
+          $('tbody').html(content);
+          //--------------------------------------
+          totalPage = res.PAGINATION.TOTAL_PAGES
+          paginator.initPaginator({
+            'previousPage': 'Next',
+            'nextPage': 'Prev',
+            'totalPage': totalPage,
+            'triggerFunc': renderPage,
+            'paginationClass': 'paginatorCustomClass'
+          });
+        }
+      })
+
+    });
+
+    /**
+    |--------------------------------------------------
+    | function renderPage will execute when you click on each page to render dynamic data
+    |--------------------------------------------------
+    */
+    function renderPage() {
+
+      selectdPg = $('.js-paginator').data('pageSelected');
+
+      $.ajax({
+        url: `http://110.74.194.124:15011/v1/api/articles?page=${selectdPg}&limit=15`,
+        method: 'get',
+        success: function (res) {
+          content = ''
+          for (a of res.DATA) {
+            content += `
+            <tr>
+        <th>${a.ID}</th>
+        <td>${a.TITLE}</td>
+        <td>${a.DESCRIPTION}</td>
+        <td><img src=${a.IMAGE}></td>
+        <td> 
+        <button type="button" class="btn btn-danger"  id="aID" data-id=${a.ID} onclick=DeleteArcticle(this)>Delete</button>
+        <button type="button" class="btn btn-success" onclick="GoToDetail(${a.ID})">View</button>
+        <button type="button" class="btn btn-success" onclick="showModal('${a.TITLE}','${a.DESCRIPTION}','${a.IMAGE}','${a.ID}')">Edit</button>
+        </td>
+      </tr>
+          `
+          }
+          $('tbody').html(content);
+        },
+        error: function (er) {
+          console.log(er);
+        }
+      })
+    }
+
+  </script>
+
+  <!-- JQuery -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.10.0/js/mdb.min.js"></script>
+  <script src="js/index.js"></script>
+
+</body>
+
+</html>
